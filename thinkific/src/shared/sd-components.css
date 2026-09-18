@@ -454,3 +454,8 @@ pre .copy-button-inline:hover {
   transform: translateY(-2px);
 }
 .back-to-top-btn:active { transform: translateY(0); }
+
+/* ── Brighter code-block line highlight (overrides convert.py's inline default) ── */
+.highlight-line {
+  background-color: rgba(56, 108, 163, 0.75) !important;
+}
