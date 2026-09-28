@@ -227,6 +227,7 @@ details[open] > summary {
 }
 details > *:not(summary) { padding: 0 16px; }
 details > summary + * { padding-top: 8px; }
+details > *:last-child { margin-bottom: 0; padding-bottom: 16px; }
 
 /* ── Nested note: indented, more compact dropdown under a list item ── */
 details.nested-note {
