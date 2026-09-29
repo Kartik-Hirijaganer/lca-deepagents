@@ -472,3 +472,11 @@ pre .copy-button-inline:hover {
   padding-left: 0;
   opacity: 0.4;
 }
+
+/* This tree is a reference figure meant to be read whole, so override the
+   pipeline's 600px cap on pre and let it run to full height instead of
+   scrolling inside the block. */
+.tree-coverage pre {
+  max-height: none;
+  overflow-y: visible;
+}
