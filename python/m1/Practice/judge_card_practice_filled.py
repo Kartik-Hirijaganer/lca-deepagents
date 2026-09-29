@@ -79,7 +79,8 @@ organized answers as a thrilling character arc.""" + TOOL_SEQUENCE,
 @tool
 def score_and_match(answers: list[tuple[int, int, int]]) -> dict:
     """Tally the quiz answers into three 0-100 trait scores and pick a
-    matching LangChain product."""
+    matching LangChain product. Call this first, with the exact answers
+    list you were given."""
     scores = [50, 50, 50]
     for delta in answers:
         for i in range(3):
@@ -102,10 +103,8 @@ INTERRUPT_ON = {"post_card": True}
 MODEL = model
 
 
-# No login, API key, or account needed here: docs.langchain.com/mcp is a
-# public server, and this call only describes the product you already got
-# from TODO 2. PLACEHOLDER_FACT is the fallback if the docs server is
-# unreachable; it has nothing to do with auth.
+# Returned if the docs server is unreachable. No login or API key needed:
+# docs.langchain.com/mcp is a public server.
 PLACEHOLDER_FACT = "No docs fact available. Base the verdict on the trait scores instead."
 
 
@@ -134,7 +133,8 @@ async def _fetch_product_fact_async(product: str) -> str:
 @tool
 def fetch_product_fact(product: str) -> str:
     """Look up one grounded, factual sentence about the LangChain product
-    you were matched with."""
+    you were matched with. Call this right after score_and_match, passing
+    in the product name it returned."""
     return asyncio.run(_fetch_product_fact_async(product))
 
 

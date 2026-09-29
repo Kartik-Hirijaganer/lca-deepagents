@@ -103,7 +103,8 @@ export const scoreAndMatch = tool(
   },
   {
     name: "score_and_match",
-    description: "Tally the quiz answers into three 0-100 trait scores and pick a matching LangChain product.",
+    description:
+      "Tally the quiz answers into three 0-100 trait scores and pick a matching LangChain product. Call this first, with the exact answers list you were given.",
     schema: z.object({
       answers: z.array(z.tuple([z.number(), z.number(), z.number()])),
     }),
@@ -119,10 +120,8 @@ const INTERRUPT_ON = { post_card: true };
 // TODO 5 (optional) left as the default model
 const MODEL = model;
 
-// No login, API key, or account needed here: docs.langchain.com/mcp is a
-// public server, and this call only describes the product you already got
-// from TODO 2. PLACEHOLDER_FACT is the fallback if the docs server is
-// unreachable; it has nothing to do with auth.
+// Returned if the docs server is unreachable. No login or API key needed:
+// docs.langchain.com/mcp is a public server.
 export const PLACEHOLDER_FACT = "No docs fact available. Base the verdict on the trait scores instead.";
 
 async function fetchProductFactAsync(product: string): Promise<string> {
@@ -161,7 +160,8 @@ export const fetchProductFact = tool(
   async ({ product }: { product: string }): Promise<string> => fetchProductFactAsync(product),
   {
     name: "fetch_product_fact",
-    description: "Look up one grounded, factual sentence about the LangChain product you were matched with.",
+    description:
+      "Look up one grounded, factual sentence about the LangChain product you were matched with. Call this right after score_and_match, passing in the product name it returned.",
     schema: z.object({ product: z.string() }),
   }
 );

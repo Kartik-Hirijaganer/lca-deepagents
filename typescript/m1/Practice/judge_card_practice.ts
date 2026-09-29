@@ -108,7 +108,6 @@ export const JUDGE_PERSONAS: Record<string, string> = {
       deliver it. You are sharp, a little cruel, and allergic to participation
       trophies.` + TOOL_SEQUENCE,
 
-  // TODO 1: replace the placeholder text below with your own persona.
   your_persona:
     context`
       TODO 1: replace this text with your own judge persona. Start with
@@ -118,12 +117,10 @@ export const JUDGE_PERSONAS: Record<string, string> = {
 
 // ════════════════════════════════════════════════════════════════════════
 // TODO 2 (Lesson 1.5, Tools: Custom Tools)
-// The tallying (scoring each answer, then clamping to 0-100) is done for you.
-// Read the comments to see how it works.
+// The tallying (scoring each answer, then clamping to 0-100) is done for
+// you; read the comments to see how it works. Your job starts at the
+// "TODO here" comment: turn the finished scores array into a matched product.
 // Until this is done, the script stops with a "TODO 2" message.
-//
-// Your job starts at the "TODO here" comment:
-// Turn the finished scores array into a matched product.
 // ════════════════════════════════════════════════════════════════════════
 
 export const scoreAndMatch = tool(
@@ -141,7 +138,6 @@ export const scoreAndMatch = tool(
     // A long run of the same answer could push a score past 0 or 100, so
     // clamp every score back into that range.
     const clamped = scores.map((score) => Math.max(0, Math.min(100, score)));
-    void clamped; // clamped is finished here; TODO below still needs to use it.
 
     // TODO here: clamped is finished. Use it to pick a matched product.
     // 1. Set axisIndex to the index (0, 1, or 2) of whichever score in
@@ -199,40 +195,30 @@ const MODEL = model; // TODO 5 (optional): e.g. const MODEL = strongModel;
 // A stretch goal. Until you do it, this tool returns PLACEHOLDER_FACT, so
 // the rest of the practice runs without it.
 //
-// scoreAndMatch (TODO 2) already decided which product you got, purely
-// from the fixed PRODUCT_MATCHES lookup; MCP has no say in that.
+// scoreAndMatch (TODO 2) already picked your product; this tool only
+// describes it with one real fact from the docs. No login, API key, or
+// account needed: docs.langchain.com/mcp is a public server.
 //
-// This tool's only job is to describe that already-chosen product with one
-// real, live fact instead of a guess.
-//
-// Mirror m1.6_agent_mcp.ts exactly:
+// Mirror m1.6_agent_mcp.ts:
 //   1. Connect to https://docs.langchain.com/mcp with MultiServerMCPClient.
 //   2. Filter its tools down to just "search_docs_by_lang_chain".
 //   3. Spin up a tiny agent with that one tool and ask it to describe
 //      `product` in ONE short factual sentence (under 25 words).
 //   4. Return that sentence, stripped of extra whitespace.
 //
-// This tool itself can stay async (unlike Python, which needed a sync
-// wrapper around asyncio.run): just make the tool's own function `async`
-// and await the MCP/agent calls directly inside it.
+// The tool's function is already `async`, so await the MCP/agent calls
+// directly inside it.
 //
-// On any failure (no network, tool error), fall back to PLACEHOLDER_FACT so
-// the practice stays runnable either way.
+// On any failure (no network, tool error), log the error and return
+// PLACEHOLDER_FACT so the practice stays runnable. The log is how you'll
+// know it failed: the agent gets the same placeholder text in both cases.
 // ════════════════════════════════════════════════════════════════════════
 
-// No login, API key, or account needed here: docs.langchain.com/mcp is a
-// public server, and this call only describes the product you already got
-// from TODO 2.
-//
-// PLACEHOLDER_FACT is what this tool returns until you do TODO 6, and what
-// your finished version should fall back to if the docs server is
-// unreachable. It has nothing to do with auth.
 export const PLACEHOLDER_FACT = "No docs fact available. Base the verdict on the trait scores instead.";
 
 export const fetchProductFact = tool(
   // TODO 6: replace this function with the MCP lookup described above.
   async ({ product }: { product: string }): Promise<string> => {
-    void product;
     return PLACEHOLDER_FACT;
   },
   {

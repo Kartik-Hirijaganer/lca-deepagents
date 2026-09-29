@@ -101,7 +101,6 @@ can barely be bothered to look up from whatever they were doing to
 deliver it. You are sharp, a little cruel, and allergic to participation
 trophies.""" + TOOL_SEQUENCE,
 
-    # TODO 1: replace the placeholder text below with your own persona.
     "your_persona": """TODO 1: replace this text with your own judge persona.
 Start with "You are <Name>, ..." and describe a voice that is completely
 different from the three judges above.""" + TOOL_SEQUENCE,
@@ -110,12 +109,10 @@ different from the three judges above.""" + TOOL_SEQUENCE,
 
 # ════════════════════════════════════════════════════════════════════════
 # TODO 2 (Lesson 1.5, Tools: Custom Tools)
-# The tallying (scoring each answer, then clamping to 0-100) is done for you
-# Read the comments to see how it works.
+# The tallying (scoring each answer, then clamping to 0-100) is done for
+# you; read the comments to see how it works. Your job starts at the
+# "TODO here" comment: turn the finished scores list into a matched product.
 # Until this is done, the script stops with a "TODO 2" message.
-
-# Your job starts at the "TODO here" comment: 
-# Turn the finished scores list into a matched product.
 # ════════════════════════════════════════════════════════════════════════
 
 @tool
@@ -186,35 +183,27 @@ MODEL = model  # TODO 5 (optional): e.g. MODEL = strong_model
 # TODO 6 (Lesson 1.6, MCP: Connecting Agents to External Services)
 # A stretch goal. Until you do it, this tool returns PLACEHOLDER_FACT, so
 # the rest of the practice runs without it.
-
-# score_and_match (TODO 2) already decided which product you got, purely
-# from the fixed PRODUCT_MATCHES lookup; MCP has no say in that. 
-
-# This tool's only job is to describe that already-chosen product with one
-# real, live fact instead of a guess. 
-
-# Mirror m1.6_agent_mcp.py exactly:
+#
+# score_and_match (TODO 2) already picked your product; this tool only
+# describes it with one real fact from the docs. No login, API key, or
+# account needed: docs.langchain.com/mcp is a public server.
+#
+# Mirror m1.6_agent_mcp.py:
 #   1. Connect to https://docs.langchain.com/mcp with MultiServerMCPClient.
 #   2. Filter its tools down to just "search_docs_by_lang_chain".
 #   3. Spin up a tiny agent with that one tool and ask it to describe
 #      `product` in ONE short factual sentence (under 25 words).
 #   4. Return that sentence, stripped of extra whitespace.
-
-# This tool itself must stay synchronous, so put the MCP/agent calls in a
-# separate `async def` helper (same shape as m1.6's `async def main(): ...`)
-# and call that helper with asyncio.run(...) from inside fetch_product_fact.
-
-# On any failure (no network, tool error), fall back to PLACEHOLDER_FACT so
-# the practice stays runnable either way.
+#
+# This tool must stay synchronous, so put the MCP/agent calls in a separate
+# `async def` helper (same shape as m1.6's `async def main(): ...`) and call
+# it with asyncio.run(...) from inside fetch_product_fact.
+#
+# On any failure (no network, tool error), print the error and return
+# PLACEHOLDER_FACT so the practice stays runnable. The print is how you'll
+# know it failed: the agent gets the same placeholder text in both cases.
 # ════════════════════════════════════════════════════════════════════════
 
-# No login, API key, or account needed here: docs.langchain.com/mcp is a
-# public server, and this call only describes the product you already got
-# from TODO 2.
-
-# PLACEHOLDER_FACT is what this tool returns until you do TODO 6, and what
-# your finished version should fall back to if the docs server is
-# unreachable. It has nothing to do with auth.
 PLACEHOLDER_FACT = "No docs fact available. Base the verdict on the trait scores instead."
 
 
