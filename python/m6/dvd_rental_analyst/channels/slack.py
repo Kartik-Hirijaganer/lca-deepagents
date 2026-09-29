@@ -1,16 +1,13 @@
-# python/m6/sales_assistant/channels/slack.py
-"""Puts the agent in Slack.
+# python/m6/dvd_rental_analyst/channels/slack.py
+"""Lets people @mention the agent in Slack.
 
 `channels.slack()` takes MDA runtime options only, no name or description. The
 defaults are what you want for a first deploy, so the bare call is enough.
 
-This is a bring-your-own-app channel. Before it will work you need a Slack app
-of your own (api.slack.com/apps) with these bot scopes:
-
-    app_mentions:read, channels:history, chat:write, groups:history, im:history
-
-then subscribe to the bot events you care about under Event Subscriptions, and
-set SLACK_SIGNING_SECRET and SLACK_BOT_TOKEN in .env so the deploy forwards
+This is a bring-your-own-app channel: it needs a Slack app of your own. After
+deploying, `mda channel add slack` generates a Slack app manifest for the
+deployment, which you create the app from at api.slack.com/apps. Then put
+SLACK_SIGNING_SECRET and SLACK_BOT_TOKEN in .env so the next deploy forwards
 them.
 
 Delete this file to deploy without Slack.
