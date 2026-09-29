@@ -18,7 +18,7 @@ from the repo.
 | `sandbox/setup.sh` | Installs pandas and matplotlib, downloads `chinook.db`, creates `artifacts/` |
 | `skills/weekly-newsletter/SKILL.md` | The newsletter playbook. Also editable in Context Hub |
 | `identity.py` | Who can call the deployment |
-| `channels/slack.py` | Puts the agent in Slack. Delete to deploy without it |
+| `channels/slack.py` | Lets people `@mention` the agent in Slack. Needs your own Slack app; delete to deploy without it |
 | `pyproject.toml` | Dependencies |
 
 ## Setup
@@ -43,9 +43,13 @@ mda dev
 mda deploy .
 ```
 
-That prints an Agent Server URL and a LangSmith dashboard URL. With
-`channels/slack.py` present, the deploy also walks you through authorizing the
-Slack app.
+That prints an Agent Server URL and a LangSmith dashboard URL.
+
+`channels/slack.py` is the one piece that needs setup outside MDA: create a
+Slack app at api.slack.com/apps, give its bot `app_mentions:read`,
+`channels:history`, `chat:write`, `groups:history`, `im:history`, subscribe to
+`app_mention` under Event Subscriptions, and put `SLACK_SIGNING_SECRET` and
+`SLACK_BOT_TOKEN` in `.env`. Delete the file to deploy without Slack.
 
 ## Try these
 
@@ -67,9 +71,10 @@ sandboxes it created. Memory and thread history are not recoverable afterward.
 
 ## Caveat
 
-This project was written to match Module 6's lessons, which are a conceptual
-tour rather than a tested lab. The MDA API surface here has not been executed
-against a real install, so treat the first `mda dev` as a test of the lesson
-code as much as of the project. The package name in `pyproject.toml` and the
-`managed_deepagents` import paths are the most likely things to need
-correcting; check them against the SDK repo.
+`define_deep_agent`, `define_sandbox`, `define_identity`, and
+`auth.langsmith_api_key()` were checked against the SDK shipped in an `mda`
+build and match. `channels.slack()` was corrected after a deploy failed: it
+takes runtime options only, not `name`/`description`.
+
+The rest of the project still hasn't been run end to end, so an agent turn,
+the sandbox setup, or the skill may need adjusting on first contact.
