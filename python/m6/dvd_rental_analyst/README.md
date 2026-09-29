@@ -17,11 +17,11 @@ read from the repo.
 |---|---|
 | `agent.py` | The agent definition: name, model, and the `email_report` tool |
 | `instructions.md` | The system prompt, including the Sakila schema cheat sheet. Editable live in Context Hub |
-| `sandbox/__init__.py` | `define_sandbox(scope="thread")` |
+| `sandbox/__init__.py` | `define_sandbox()` |
 | `sandbox/setup.sh` | Installs pandas and matplotlib, then builds `sakila.db` |
 | `skills/qbr-report/SKILL.md` | The QBR playbook. Also editable in Context Hub |
 | `identity.py` | Who can call the deployment |
-| `channels/slack.py` | Lets people `@mention` the agent in Slack. Needs your own Slack app; delete to deploy without it |
+| `channels/slack.py` | Lets people `@mention` the agent in Slack. Needs your own Slack app; inert until you add its secrets |
 | `pyproject.toml` | Dependencies |
 
 `sakila.db` is not in the repo. `sandbox/setup.sh` downloads the Sakila schema
@@ -47,10 +47,12 @@ mda deploy .
 That prints an Agent Server URL and a LangSmith dashboard URL. Open the
 dashboard URL, click **Connect**, then **Open in Studio** to chat with it.
 
-`channels/slack.py` is the one piece that needs setup outside MDA. Run
+`channels/slack.py` is the one piece that needs setup outside MDA, but it
+doesn't block a first deploy: without `SLACK_SIGNING_SECRET` and
+`SLACK_BOT_TOKEN` the channel deploys and sits inert. To wire it up, run
 `mda channel add slack` to generate a Slack app manifest for the deployment,
-create the app from it at api.slack.com/apps, and put `SLACK_SIGNING_SECRET`
-and `SLACK_BOT_TOKEN` in `.env`. Delete the file to deploy without Slack.
+create the app from it at api.slack.com/apps, put the two secrets in `.env`,
+and redeploy.
 
 ## Try these
 
