@@ -1,0 +1,13 @@
+[project]
+name = "chinook-sales-assistant"
+version = "0.1.0"
+description = "Managed Deep Agents version of the Module 5 Chinook sales assistant"
+requires-python = ">=3.11"
+dependencies = [
+    "managed-deepagents",
+    "langchain>=1.0.0,<2.0",
+    "langchain-anthropic",
+]
+
+# This project is deliberately self-contained: it does not depend on the
+# repo-root python/ package, because MDA uploads the project folder on deploy.
