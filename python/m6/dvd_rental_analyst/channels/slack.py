@@ -4,13 +4,14 @@
 `channels.slack()` takes MDA runtime options only, no name or description. The
 defaults are what you want for a first deploy, so the bare call is enough.
 
-This is a bring-your-own-app channel: it needs a Slack app of your own. After
-deploying, `mda channel add slack` generates a Slack app manifest for the
-deployment, which you create the app from at api.slack.com/apps. Then put
-SLACK_SIGNING_SECRET and SLACK_BOT_TOKEN in .env so the next deploy forwards
-them.
+You do not build the Slack app yourself. With this file present, `mda deploy`
+prints an authorization link near the end; approve it against your workspace
+and LangSmith creates the app, installs it, and points its Events endpoint at
+the deployment. The bot token is stored as a workspace connection
+(`mda connections list`), so nothing goes in .env.
 
-Delete this file to deploy without Slack.
+Press Enter at that prompt to skip it; the deploy finishes with Slack events
+disabled and you can authorize on a later deploy.
 """
 
 from managed_deepagents import channels

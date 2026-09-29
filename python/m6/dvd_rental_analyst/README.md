@@ -21,7 +21,7 @@ read from the repo.
 | `sandbox/setup.sh` | Installs pandas and matplotlib, then builds `sakila.db` |
 | `skills/qbr-report/SKILL.md` | The QBR playbook. Also editable in Context Hub |
 | `identity.py` | Who can call the deployment |
-| `channels/slack.py` | Lets people `@mention` the agent in Slack. Needs your own Slack app; inert until you add its secrets |
+| `channels/slack.py` | Lets people `@mention` the agent in Slack. Authorize once during a deploy; LangSmith builds the app |
 | `pyproject.toml` | Dependencies |
 
 `sakila.db` is not in the repo. `sandbox/setup.sh` downloads the Sakila schema
@@ -47,12 +47,13 @@ mda deploy .
 That prints an Agent Server URL and a LangSmith dashboard URL. Open the
 dashboard URL, click **Connect**, then **Open in Studio** to chat with it.
 
-`channels/slack.py` is the one piece that needs setup outside MDA, but it
-doesn't block a first deploy: without `SLACK_SIGNING_SECRET` and
-`SLACK_BOT_TOKEN` the channel deploys and sits inert. To wire it up, run
-`mda channel add slack` to generate a Slack app manifest for the deployment,
-create the app from it at api.slack.com/apps, put the two secrets in `.env`,
-and redeploy.
+`channels/slack.py` needs one authorization, but it doesn't block a first
+deploy. Near the end of `mda deploy` a **Connect Slack** prompt appears with an
+authorization link; press Enter to skip it and the deploy finishes with Slack
+events disabled. Approve it instead and LangSmith creates the Slack app,
+installs it in your workspace, and points its Events endpoint at the
+deployment. The bot token is stored as a workspace connection, visible with
+`mda connections list`, so nothing goes in `.env`.
 
 ## Try these
 
