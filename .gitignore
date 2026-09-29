@@ -12,6 +12,11 @@ client_secret_*.json
 *.p12
 *.pfx
 secrets/
+
+# Managed Deep Agents CLI output (mda dev / mda deploy).
+# Build artifacts plus a local Context Hub mirror; regenerated on every run.
+# A build-time .env with real keys lands in here, so keep the whole dir out.
+.mda/
 credentials/
 credentials.json
 
