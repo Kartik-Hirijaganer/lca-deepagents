@@ -169,7 +169,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
 
 // One real LangChain product per axis-leaning direction, keyed lowercase.
 // (See https://docs.langchain.com for the full product lineup.) This
-// lookup is what decides which product you get; TODO 3's MCP call only
+// lookup is what decides which product you get; TODO 6's MCP call only
 // describes whichever product this table already picked, it doesn't
 // choose it.
 export const PRODUCT_MATCHES: Record<string, string> = {
@@ -497,6 +497,16 @@ interface ActionRequest {
 
 interface ApprovalRequest {
   actionRequests: ActionRequest[];
+}
+
+/** Stop the script with a short message when a tool hits an unfinished
+ * TODO. A plain `throw` doesn't work for this: the agent catches tool errors
+ * and hands them back to the model as a tool result, so the run would carry
+ * on without real scores instead of stopping. */
+export function stopForTodo(message: string): never {
+  console.log(`\nStopped: ${message}`);
+  console.log("A tool call hit that unfinished TODO: finish it, then rerun.");
+  process.exit(1);
 }
 
 export interface RunJudgeOptions {

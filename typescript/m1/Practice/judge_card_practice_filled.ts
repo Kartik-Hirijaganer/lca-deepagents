@@ -1,8 +1,8 @@
 // typescript/m1/Practice/judge_card_practice_filled.ts
 /**
- * Personal reference copy of judge_card_practice.ts with TODOs 1, 2, 3, 4,
- * and 5 filled in so you can run it end to end and see what the finished
- * practice exercise looks like.
+ * Personal reference copy of judge_card_practice.ts with TODOs 1 to 4 and
+ * the TODO 6 stretch goal filled in, so you can run it end to end and see
+ * what the finished practice exercise looks like.
  */
 
 import { context, tool } from "langchain";
@@ -110,11 +110,20 @@ export const scoreAndMatch = tool(
   }
 );
 
+// TODO 3 filled in: run all four personas (three shipped + your_persona)
+export const JUDGES_TO_RUN = ["your_persona", "ancient_mummy", "salty_pirate", "savage_critic"];
+
+// TODO 4 filled in
+const INTERRUPT_ON = { post_card: true };
+
+// TODO 5 (optional) left as the default model
+const MODEL = model;
+
 // No login, API key, or account needed here: docs.langchain.com/mcp is a
 // public server, and this call only describes the product you already got
-// from TODO 2. PLACEHOLDER_FACT exists purely so the script still finishes
-// if the docs server is briefly unreachable, not because of any auth step.
-export const PLACEHOLDER_FACT = "no real data connected yet: swap this for a real MCP-sourced fact";
+// from TODO 2. PLACEHOLDER_FACT is the fallback if the docs server is
+// unreachable; it has nothing to do with auth.
+export const PLACEHOLDER_FACT = "No docs fact available. Base the verdict on the trait scores instead.";
 
 async function fetchProductFactAsync(product: string): Promise<string> {
   const client = new MultiServerMCPClient({
@@ -147,7 +156,7 @@ async function fetchProductFactAsync(product: string): Promise<string> {
   }
 }
 
-// TODO 3 filled in
+// TODO 6 filled in (stretch goal)
 export const fetchProductFact = tool(
   async ({ product }: { product: string }): Promise<string> => fetchProductFactAsync(product),
   {
@@ -156,9 +165,6 @@ export const fetchProductFact = tool(
     schema: z.object({ product: z.string() }),
   }
 );
-
-// TODO 4 filled in: run all four personas (three shipped + your_persona)
-export const JUDGES_TO_RUN = ["your_persona", "ancient_mummy", "salty_pirate", "savage_critic"];
 
 export function buildUserPrompt(answers: TraitDelta[]): string {
   return (
@@ -177,8 +183,8 @@ for (const judgeName of JUDGES_TO_RUN) {
     systemPrompt: JUDGE_PERSONAS[judgeName],
     userPrompt,
     tools: [scoreAndMatch, fetchProductFact, renderCard, postCard],
-    model,
-    interruptOn: { post_card: true }, // TODO 5 filled in
+    model: MODEL,
+    interruptOn: INTERRUPT_ON,
     threadPrefix: "m1-practice-filled",
   });
 }

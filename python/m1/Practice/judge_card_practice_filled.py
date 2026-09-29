@@ -1,7 +1,7 @@
 # python/m1/Practice/judge_card_practice_filled.py
-"""Personal reference copy of judge_card_practice.py with TODOs 1, 2, 3, 4,
-and 5 filled in so you can run it end to end and see what the finished
-practice exercise looks like."""
+"""Personal reference copy of judge_card_practice.py with TODOs 1 to 4 and
+the TODO 6 stretch goal filled in, so you can run it end to end and see
+what the finished practice exercise looks like."""
 
 from __future__ import annotations
 
@@ -92,11 +92,21 @@ def score_and_match(answers: list[tuple[int, int, int]]) -> dict:
     return {"trait_scores": scores, "product": product}
 
 
+# TODO 3 filled in: run all four personas (three shipped + your_persona)
+JUDGES_TO_RUN = ["your_persona", "ancient_mummy", "salty_pirate", "savage_critic"]
+
+# TODO 4 filled in
+INTERRUPT_ON = {"post_card": True}
+
+# TODO 5 (optional) left as the default model
+MODEL = model
+
+
 # No login, API key, or account needed here: docs.langchain.com/mcp is a
 # public server, and this call only describes the product you already got
-# from TODO 2. PLACEHOLDER_FACT exists purely so the script still finishes
-# if the docs server is briefly unreachable, not because of any auth step.
-PLACEHOLDER_FACT = "no real data connected yet: swap this for a real MCP-sourced fact"
+# from TODO 2. PLACEHOLDER_FACT is the fallback if the docs server is
+# unreachable; it has nothing to do with auth.
+PLACEHOLDER_FACT = "No docs fact available. Base the verdict on the trait scores instead."
 
 
 async def _fetch_product_fact_async(product: str) -> str:
@@ -120,16 +130,12 @@ async def _fetch_product_fact_async(product: str) -> str:
         return PLACEHOLDER_FACT
 
 
-# TODO 3 filled in
+# TODO 6 filled in (stretch goal)
 @tool
 def fetch_product_fact(product: str) -> str:
     """Look up one grounded, factual sentence about the LangChain product
     you were matched with."""
     return asyncio.run(_fetch_product_fact_async(product))
-
-
-# TODO 4 filled in: run all four personas (three shipped + your_persona)
-JUDGES_TO_RUN = ["your_persona", "ancient_mummy", "salty_pirate", "savage_critic"]
 
 
 def build_user_prompt(answers: list[tuple[int, int, int]]) -> str:
@@ -151,8 +157,8 @@ if __name__ == "__main__":
             system_prompt=JUDGE_PERSONAS[judge_name],
             user_prompt=user_prompt,
             tools=[score_and_match, fetch_product_fact, render_card, post_card],
-            model=model,
-            interrupt_on={"post_card": True},  # TODO 5 filled in
+            model=MODEL,
+            interrupt_on=INTERRUPT_ON,
             thread_prefix="m1-practice-filled",
         )
     print(f"\nCards saved to {OUTPUT_DIR}/")

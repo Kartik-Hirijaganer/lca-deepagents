@@ -2,51 +2,25 @@
 /**
  * M1 Practice: Build a Judge Persona that scores you and renders a card.
  *
- * THE IDEA
- * You answer an 8-question personality quiz using arrow keys. An agent with a
- * persona (rude / ancient mummy / pirate etc.) tallies your answers, matches
- * you to a real LangChain product, and renders a shareable result card as
- * ASCII art right in your terminal.
+ * You answer an 8-question personality quiz. An agent running a judge
+ * persona (pirate, ancient mummy, savage critic, or your own) scores your
+ * answers, matches you to a real LangChain product, and renders a shareable
+ * result card as ASCII art in your terminal.
  *
- * WHAT'S PROVIDED
- * See judge_card_helpers.ts (same idea as models.ts: shared setup you import,
- * not code you need to read to do this practice):
- *   - runQuiz(): the arrow-key quiz itself (QUIZ_QUESTIONS, 8 questions).
- *   - PRODUCT_MATCHES: the trait-axis -> real LangChain product lookup.
- *   - renderCard: renders + saves your finished card as ASCII art. You
- *     shouldn't need to touch this, but feel free to restyle it (see
- *     PERSONA_STYLES there if you want your persona to have its own mascot).
- *   - postCard: a "publish" tool that renders a mock post on our fake X
- *     platform. Nothing ever leaves your terminal.
- *   - runJudge(): the invoke / interrupt-resume loop. You've already written
- *     this once in the Human-In-The-Loop lesson, no need to write it again.
- *   - TOOL_SEQUENCE: the tool-calling steps every persona shares, appended to
- *     each persona string below so you only have to write the voice.
+ * The quiz, the card renderer, the mock "post" tool, and the approval loop
+ * are provided in judge_card_helpers.ts (same idea as models.ts: shared
+ * setup you import). You don't need to open it to do this practice.
  *
- * _____________________________________________________________________________
- *
- * WHAT YOU FILL IN (mapped to Module 1 lesson concepts)
- *   TODO 1 (Lesson 1.4, The System Prompt: Persona): three judges are
- *     pre-written (pirate captain, ancient mummy, savage critic); write a
- *     fourth of your own, "your_persona": that's the card that gets posted.
- *   TODO 2 (Lesson 1.5, Tools: Custom Tools): implement scoreAndMatch's
- *     body: tally the quiz into trait scores and match a LangChain product.
- *   TODO 3 (Lesson 1.6, MCP: Connecting Agents to External Services): stretch
- *     goal, ground the verdict in one real MCP fact about your matched
- *     product instead of PLACEHOLDER_FACT.
- *   TODO 4 (Lesson 1.7, Messages, Threads, and Checkpointers: Threads): add
- *     your second persona's key to JUDGES_TO_RUN so it runs in its own
- *     thread.
- *   TODO 5 (Lesson 1.8, Human-in-the-Loop: Decision Types): set interruptOn
- *     so post_card requires approval for our mock X platform.
- *   TODO 6 (Lesson 1.3, Models, optional): try strongModel instead of model
- *     and compare comedic timing.
- * _____________________________________________________________________________
- *
- * MAKE IT YOURS
- * The quiz's trait axes (Chaotic/Organized, Cautious/Bold, Solo/
- * Collaborative) are fixed, but your persona's voice isn't.
- * Give your judge a completely different personality from the three examples.
+ * YOUR TODOS: work top to bottom. The lesson page has the full walkthrough.
+ *   TODO 1 (Lesson 1.4) Write your own judge persona.
+ *   TODO 2 (Lesson 1.5) Finish scoreAndMatch. The script stops with a
+ *          "TODO 2" message until this is done. Run it after this one.
+ *   TODO 3 (Lesson 1.7) Add a second judge to JUDGES_TO_RUN. Run it again.
+ *   TODO 4 (Lesson 1.8) Set INTERRUPT_ON so posting needs your approval.
+ *          Run it again.
+ *   TODO 5 (Lesson 1.3, optional) Try strongModel.
+ *   TODO 6 (Lesson 1.6, stretch goal) Replace the placeholder product fact
+ *          with a real one from the LangChain docs MCP server.
  *
  * RUN
  *   cd typescript && pnpm tsx m1/Practice/judge_card_practice.ts
@@ -69,18 +43,21 @@ import {
   renderCard,
   runJudge,
   runQuiz,
+  stopForTodo,
   type TraitDelta,
 } from "./judge_card_helpers.js";
 import { model } from "../../models.js";
 
 // ════════════════════════════════════════════════════════════════════════
 // TODO 1 (Lesson 1.4, The System Prompt: Persona)
-// Three judges are already written below.
-// Pick any of them and the script runs as-is.
-// Required: write "your_persona" below, fully your own voice.
+// Three example judges are already written below. Write a fourth,
+// "your_persona", in a voice all your own: it's the judge that runs by
+// default, so it's the card that gets posted.
 //
-// Same job every time (score three traits, match a product, hand off a
-// verdict line), a completely different voice.
+// You only write the voice. TOOL_SEQUENCE (added to the end of every
+// persona) already tells the agent what to do: score three traits, match a
+// product, then render and post the card. Start with "You are <Name>, ...";
+// the agent signs your card with that name.
 // Make it genuinely rude / roast you (if you want).
 // ════════════════════════════════════════════════════════════════════════
 
@@ -131,21 +108,19 @@ export const JUDGE_PERSONAS: Record<string, string> = {
       deliver it. You are sharp, a little cruel, and allergic to participation
       trophies.` + TOOL_SEQUENCE,
 
-  // TODO 1: name and write your own persona here. Keep the same job
-  // (score three traits, match a product, hand off a verdict)
-  // Give it a name and a voice all your own.
+  // TODO 1: replace the placeholder text below with your own persona.
   your_persona:
     context`
-      TODO 1: replace this with your own judge persona. Give
-      yourself a name and a distinct voice (see the three judges above for the
-      shape), then call yourself that name wherever judgeName is expected
-      below.` + TOOL_SEQUENCE,
+      TODO 1: replace this text with your own judge persona. Start with
+      "You are <Name>, ..." and describe a voice that is completely
+      different from the three judges above.` + TOOL_SEQUENCE,
 };
 
 // ════════════════════════════════════════════════════════════════════════
 // TODO 2 (Lesson 1.5, Tools: Custom Tools)
 // The tallying (scoring each answer, then clamping to 0-100) is done for you.
 // Read the comments to see how it works.
+// Until this is done, the script stops with a "TODO 2" message.
 //
 // Your job starts at the "TODO here" comment:
 // Turn the finished scores array into a matched product.
@@ -180,7 +155,7 @@ export const scoreAndMatch = tool(
     // 3. Set product to PRODUCT_MATCHES[direction.toLowerCase()], e.g.
     //    PRODUCT_MATCHES["chaotic"] -> "Fleet".
     // 4. Return { traitScores: clamped, product }.
-    throw new Error("TODO 2: see the comments above");
+    return stopForTodo("TODO 2: see the comments above");
   },
   {
     name: "score_and_match",
@@ -193,8 +168,37 @@ export const scoreAndMatch = tool(
 );
 
 // ════════════════════════════════════════════════════════════════════════
-// TODO 3 (Lesson 1.6, MCP: Connecting Agents to External Services)
-// A stretch goal.
+// TODO 3 (Lesson 1.7, Messages, Threads, and Checkpointers: Threads)
+// Add one of the example judges' keys ("salty_pirate", "ancient_mummy", or
+// "savage_critic") to this list; you don't need to write another persona.
+// Each judge runs in its own thread, so you get one card per judge, all
+// judging the same quiz answers.
+// ════════════════════════════════════════════════════════════════════════
+
+export const JUDGES_TO_RUN = ["your_persona"]; // TODO 3: e.g. ["your_persona", "ancient_mummy"]
+
+// ════════════════════════════════════════════════════════════════════════
+// TODO 4 (Lesson 1.8, Human-in-the-Loop: Decision Types)
+// Right now post_card runs without asking. Set INTERRUPT_ON so the agent
+// pauses before posting. When it pauses, you'll see a draft of the post and
+// can approve, edit, or reject it.
+// ════════════════════════════════════════════════════════════════════════
+
+const INTERRUPT_ON = undefined; // TODO 4: e.g. { post_card: true }
+
+// ════════════════════════════════════════════════════════════════════════
+// TODO 5 (Lesson 1.3, Models, optional)
+// Import strongModel (next to model in the import at the top of this file),
+// set MODEL to it, and compare the comedic timing.
+// ════════════════════════════════════════════════════════════════════════
+
+const MODEL = model; // TODO 5 (optional): e.g. const MODEL = strongModel;
+
+// ════════════════════════════════════════════════════════════════════════
+// TODO 6 (Lesson 1.6, MCP: Connecting Agents to External Services)
+// A stretch goal. Until you do it, this tool returns PLACEHOLDER_FACT, so
+// the rest of the practice runs without it.
+//
 // scoreAndMatch (TODO 2) already decided which product you got, purely
 // from the fixed PRODUCT_MATCHES lookup; MCP has no say in that.
 //
@@ -220,13 +224,16 @@ export const scoreAndMatch = tool(
 // public server, and this call only describes the product you already got
 // from TODO 2.
 //
-// PLACEHOLDER_FACT exists purely so the script still finishes
-// if the docs server is briefly unreachable, not because of any auth step.
-export const PLACEHOLDER_FACT = "no real data connected yet: swap this for a real MCP-sourced fact";
+// PLACEHOLDER_FACT is what this tool returns until you do TODO 6, and what
+// your finished version should fall back to if the docs server is
+// unreachable. It has nothing to do with auth.
+export const PLACEHOLDER_FACT = "No docs fact available. Base the verdict on the trait scores instead.";
 
 export const fetchProductFact = tool(
+  // TODO 6: replace this function with the MCP lookup described above.
   async ({ product }: { product: string }): Promise<string> => {
-    throw new Error(`TODO 3: see the comment block above (product=${product})`);
+    void product;
+    return PLACEHOLDER_FACT;
   },
   {
     name: "fetch_product_fact",
@@ -235,16 +242,6 @@ export const fetchProductFact = tool(
     schema: z.object({ product: z.string() }),
   }
 );
-
-// ════════════════════════════════════════════════════════════════════════
-// TODO 4 (Lesson 1.7, Messages, Threads, and Checkpointers: Threads)
-// Add another persona key here (try "ancient_mummy" or "savage_critic",
-// already written above) so it runs in its own thread.
-//
-// You'll get multiple cards to compare, judging the same quiz answers.
-// ════════════════════════════════════════════════════════════════════════
-
-export const JUDGES_TO_RUN = ["your_persona"]; // TODO 4: e.g. ["your_persona", "ancient_mummy"]
 
 export function buildUserPrompt(answers: TraitDelta[]): string {
   return (
@@ -263,8 +260,8 @@ for (const judgeName of JUDGES_TO_RUN) {
     systemPrompt: JUDGE_PERSONAS[judgeName],
     userPrompt,
     tools: [scoreAndMatch, fetchProductFact, renderCard, postCard],
-    model, // TODO 6 (Lesson 1.3, Models, optional): import strongModel from "../../models.js" and try it here
-    interruptOn: undefined, // TODO 5 (Lesson 1.8, Human-in-the-Loop: Decision Types): gate post_card, e.g. { post_card: true }
+    model: MODEL,
+    interruptOn: INTERRUPT_ON,
   });
 }
 console.log(`\nCards saved to ${OUTPUT_DIR}/`);
