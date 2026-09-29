@@ -460,3 +460,15 @@ pre .copy-button-inline:hover {
 .highlight-line {
   background-color: rgba(43, 84, 126, 0.65) !important;
 }
+
+/* Directory-tree blocks invert the usual meaning of .highlight-line: the marked
+   lines are the ones a lesson does NOT cover, dimmed so the covered files read
+   at full brightness. Box-drawing characters stay aligned because no margin,
+   border or padding is applied. */
+.tree-coverage .highlight-line {
+  background: none !important;
+  border-left: none;
+  margin-left: 0;
+  padding-left: 0;
+  opacity: 0.4;
+}
