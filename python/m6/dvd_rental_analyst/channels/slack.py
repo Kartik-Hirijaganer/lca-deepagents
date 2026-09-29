@@ -4,11 +4,10 @@
 `channels.slack()` takes MDA runtime options only, no name or description. The
 defaults are what you want for a first deploy, so the bare call is enough.
 
-You do not build the Slack app yourself. With this file present, `mda deploy`
-prints an authorization link near the end; approve it against your workspace
-and LangSmith creates the app, installs it, and points its Events endpoint at
-the deployment. The bot token is stored as a workspace connection
-(`mda connections list`), so nothing goes in .env.
+With this file present, `mda deploy` prints an authorization link near the end.
+Approving it lets LangSmith create the Slack app, install it, and point its
+Events endpoint at the deployment. The bot token is stored as a workspace
+connection (`mda connections list`), so it stays out of .env.
 
 Press Enter at that prompt to skip it; the deploy finishes with Slack events
 disabled and you can authorize on a later deploy.

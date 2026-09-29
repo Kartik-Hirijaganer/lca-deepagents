@@ -47,13 +47,12 @@ mda deploy .
 That prints an Agent Server URL and a LangSmith dashboard URL. Open the
 dashboard URL, click **Connect**, then **Open in Studio** to chat with it.
 
-`channels/slack.py` needs one authorization, but it doesn't block a first
-deploy. Near the end of `mda deploy` a **Connect Slack** prompt appears with an
-authorization link; press Enter to skip it and the deploy finishes with Slack
-events disabled. Approve it instead and LangSmith creates the Slack app,
-installs it in your workspace, and points its Events endpoint at the
-deployment. The bot token is stored as a workspace connection, visible with
-`mda connections list`, so nothing goes in `.env`.
+Near the end of `mda deploy`, a **Connect Slack** prompt appears with an
+authorization link. Press Enter to skip it and the deploy finishes with Slack
+events disabled. Approving it lets LangSmith create the Slack app, install it
+in your workspace, and point its Events endpoint at the deployment. The bot
+token is stored as a workspace connection, visible with `mda connections list`,
+so it stays out of `.env`.
 
 ## Try these
 
