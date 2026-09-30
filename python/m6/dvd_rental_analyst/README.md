@@ -9,7 +9,7 @@ checkpointer, and the database is built inside a per-thread sandbox rather than
 read from the repo.
 
 > **Public beta.** MDA runs on LangSmith Cloud in the **US region only**. You
-> need beta access and a LangSmith API key.
+> need a LangSmith Cloud account and an API key.
 
 ## What's here
 
