@@ -229,6 +229,14 @@ details > *:not(summary) { padding: 0 16px; }
 details > summary + * { padding-top: 8px; }
 details > *:last-child { margin-bottom: 0; padding-bottom: 16px; }
 
+/* A list sitting directly under the summary reads top-heavy: the page template
+   gives ul/ol no margin-top, while the last li keeps its margin-bottom on top
+   of the block's padding. Even the two out. */
+details > summary + ul,
+details > summary + ol { padding-top: 14px; }
+details > ul:last-child > li:last-child,
+details > ol:last-child > li:last-child { margin-bottom: 0; }
+
 /* ── Nested note: indented, more compact dropdown under a list item ── */
 details.nested-note {
   width: calc(100% - 32px);
