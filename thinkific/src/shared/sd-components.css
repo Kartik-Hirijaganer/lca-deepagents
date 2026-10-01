@@ -237,6 +237,18 @@ details > summary + ol { padding-top: 14px; }
 details > ul:last-child > li:last-child,
 details > ol:last-child > li:last-child { margin-bottom: 0; }
 
+/* The copy button is absolutely positioned 28px tall at the top right of the
+   block. A one-line block is shorter than that, and inside a dropdown the
+   `details > *:not(summary)` rule above also strips its vertical padding, so
+   the button gets clipped or sits on top of the code. Reserve room on the right
+   and keep a floor on the height. */
+pre,
+details > pre {
+  padding: 0.5rem 3.25rem 0.5rem 1rem;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
 /* ── Nested note: indented, more compact dropdown under a list item ── */
 details.nested-note {
   width: calc(100% - 32px);
