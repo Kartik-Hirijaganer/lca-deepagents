@@ -84,13 +84,32 @@ document.addEventListener('DOMContentLoaded', function () {
     }, { passive: true });
   }
 
-  var panels = document.querySelectorAll('.lt-panel');
-  if (!panels.length) return;
+  function plainBackToTopBtn() {
+    var b = document.createElement('button');
+    b.className = 'back-to-top-btn';
+    b.textContent = '↑  Back to top';
+    b.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'instant' }); });
+    return b;
+  }
 
+  // A lesson without tabs still gets a button, just with nothing to point at.
+  function addPlainBackToTop(root) {
+    var refs = Array.prototype.slice.call(root.querySelectorAll('h2')).filter(function (h) {
+      return h.textContent.trim() === 'References';
+    });
+    if (refs.length) refs.forEach(function (h) { h.parentNode.insertBefore(plainBackToTopBtn(), h); });
+    else root.appendChild(plainBackToTopBtn());
+  }
+
+  var panels = document.querySelectorAll('.lt-panel');
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.lt-tab')).map(function (t) {
     return { key: t.getAttribute('data-p') || '', label: t.textContent.trim() };
   });
-  if (!tabs.length) return;
+
+  if (!panels.length || !tabs.length) {
+    addPlainBackToTop(document.body);
+    return;
+  }
 
   panels.forEach(function (panel) {
     var key = panel.id.replace(/^p-/, '');
