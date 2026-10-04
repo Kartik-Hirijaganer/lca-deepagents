@@ -2,7 +2,8 @@
 
 Configures the LLM model used throughout the course.
 
-Default: Anthropic claude-haiku-4-5 (fast, cheap, great for learning).
+Default: Google Gemini gemini-3.8-flash (requires the google extra).
+Strong model: Anthropic claude-sonnet-4-6.
 
 ═══════════════════════════════════════════════════════════════════════════
   ⚠  IMPORTANT: install the matching extra BEFORE swapping providers
@@ -10,7 +11,7 @@ Default: Anthropic claude-haiku-4-5 (fast, cheap, great for learning).
 
   Provider              Install command              Already installed?
   --------------------  ---------------------------  ---------------------
-  Anthropic (default)   -                            yes (default dep)
+  Anthropic             -                            yes (default dep)
   OpenAI                -                            yes (default dep)
   Azure OpenAI          uv sync --extra azure        no - install first
   AWS Bedrock           uv sync --extra bedrock      no - install first
@@ -35,11 +36,13 @@ load_dotenv(dotenv_path=Path(__file__).resolve().parent / ".env", override=True)
 from langchain.chat_models import init_chat_model
 
 # ═══ Default Models ══════════════════════════════════════════════════════════
-# Workshop default: Anthropic claude-haiku-4-5, fast and cost-effective.
-# Requires ANTHROPIC_API_KEY in .env
-model = init_chat_model("anthropic:claude-haiku-4-5", timeout=60, max_retries=2)
+# Shared model: Google Gemini Flash, fast and cost-effective.
+# Requires GOOGLE_API_KEY in .env and `uv sync --extra google`.
+# model = init_chat_model("anthropic:claude-haiku-4-5", timeout=60, max_retries=2)
+model = init_chat_model("openai:gpt-5-nano", timeout=60, max_retries=2)
 
 #A more capable model for steps that need stronger reasoning
+# Requires ANTHROPIC_API_KEY in .env.
 strong_model = init_chat_model("anthropic:claude-sonnet-4-6", timeout=120, max_retries=2)
 
 # ═══ Alternative Models (comment out default above, uncomment one below) ═════
@@ -102,4 +105,4 @@ strong_model = init_chat_model("anthropic:claude-sonnet-4-6", timeout=120, max_r
 # Install first:  uv sync --extra google
 # Requires GOOGLE_API_KEY in .env
 #
-# model = init_chat_model("google_genai:gemini-2.5-flash")
+# model = init_chat_model("google_genai:gemini-3.8-flash")
