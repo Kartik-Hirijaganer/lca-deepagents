@@ -1,4 +1,3 @@
-# python/m1/m1.6_homework.py
 """M1.6 Homework: Connect to a Different MCP Server.
 
 THE IDEA
@@ -58,10 +57,14 @@ from models import model
 #       return [t for t in tools if t.name in ALLOWED]
 # ════════════════════════════════════════════════════════════════════════
 
+
 async def build_tools():
-    """TODO 1: build a MultiServerMCPClient, fetch its tools, filter them,
-    and return the filtered list."""
-    raise NotImplementedError("TODO 1: see the comment block above")
+    client = MultiServerMCPClient(
+        {"deepwiki": {"transport": "http", "url": "https://mcp.deepwiki.com/mcp"}}
+    )
+    tools = await client.get_tools()
+    ALLOWED = {"ask_wiki_question"}
+    return [tool for tool in tools if tool.name in ALLOWED]
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -69,7 +72,10 @@ async def build_tools():
 # not Lab 1's "what is MCP..." question.
 # ════════════════════════════════════════════════════════════════════════
 
-QUESTION = "TODO 2: replace with a question that puts your chosen tool(s) to work."
+QUESTION = (
+    "Use DeepWiki to explain what filesystem backends "
+    "the langchain-ai/deepagents repository supports."
+)
 
 
 async def main():
