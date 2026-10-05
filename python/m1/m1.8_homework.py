@@ -54,10 +54,17 @@ from models import model
 #       return f"Tweet posted: {content!r}"
 # ════════════════════════════════════════════════════════════════════════
 
+
 @tool
-def your_action_tool(argument: str) -> str:
-    """TODO 1: replace this docstring and body with your own action tool."""
-    raise NotImplementedError("TODO 1: see the comment block above")
+def post_tweet(post: str) -> str:
+    """Post a tweet."""
+    return f"Post {post} tweeted"
+
+
+@tool
+def ask_user(question: str) -> str:
+    """Ask user with a clarifying question with a fixed set of choices."""
+    return f"[No response recorded for: {question}]"
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -76,7 +83,9 @@ def your_action_tool(argument: str) -> str:
 
 SYSTEM_PROMPT = "TODO 2: replace this with your own system prompt."
 INITIAL_REQUEST = "TODO 2: replace this with a request that would trigger your tool."
-INTERRUPT_ON = {"your_action_tool": True}  # TODO 2: replace with your own allowed_decisions config
+INTERRUPT_ON = {
+    "your_action_tool": True
+}  # TODO 2: replace with your own allowed_decisions config
 
 # Guards against running with an unfilled placeholder; the filled
 # reference doesn't need this since there's no placeholder text left.
@@ -108,7 +117,9 @@ while result.interrupts:
         print(f"\nApproval required for {req['name']}:")
         print(req["args"])
 
-        choice = input("\nApprove, edit, or reject? (approve/edit/reject): ").strip().lower()
+        choice = (
+            input("\nApprove, edit, or reject? (approve/edit/reject): ").strip().lower()
+        )
         if choice in ("approve", "yes", "y"):
             decisions.append({"type": "approve"})
         elif choice in ("edit", "e"):
@@ -126,7 +137,9 @@ while result.interrupts:
                 {"type": "reject", "message": "User rejected this action."}
             )
 
-    result = agent.invoke(Command(resume={"decisions": decisions}), config=config, version="v2")
+    result = agent.invoke(
+        Command(resume={"decisions": decisions}), config=config, version="v2"
+    )
 
 for msg in result.value["messages"]:
     if hasattr(msg, "name") and msg.name == "your_action_tool":

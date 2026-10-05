@@ -48,8 +48,9 @@ agent = create_deep_agent(
 #     thread_a = {"configurable": {"thread_id": "my-thread-a"}}
 # ════════════════════════════════════════════════════════════════════════
 
-thread_a = None  # TODO 1: replace with your own thread config
-thread_b = None  # TODO 1: replace with your own thread config
+
+thread_a = {"configurable": {"thread_id": "thread-a"}}
+thread_b = {"configurable": {"thread_id": "thread-b"}}
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -76,9 +77,24 @@ thread_b = None  # TODO 1: replace with your own thread config
 #   )
 # ════════════════════════════════════════════════════════════════════════
 
+
 def run_scenario():
-    """TODO 2: run the multi-turn, multi-thread scenario described above."""
-    raise NotImplementedError("TODO 2: see the comment block above")
+    result = agent.invoke(
+        {"messages": [{"role": "user", "content": "Remember my pet name is toto"}]},
+        config=thread_a,
+    )
+
+    result = agent.invoke(
+        {"messages": [{"role": "user", "content": "What is my pet name?"}]},
+        config=thread_a,
+    )
+    print(result["messages"][-1].content)
+
+    result = agent.invoke(
+        {"messages": [{"role": "user", "content": "what is my pet name?"}]},
+        config=thread_b,
+    )
+    print(result["messages"][-1].content)
 
 
 run_scenario()

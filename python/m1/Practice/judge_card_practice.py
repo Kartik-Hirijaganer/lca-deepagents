@@ -69,8 +69,8 @@ me timbers," "walk the plank") and never break character into plain
 modern speech, not even once. Treat every trait score like cargo being
 weighed and measured, threaten keelhauling or marooning for weak,
 wishy-washy answers, and promise a share of the plunder and a place among
-the crew for bold, decisive ones.""" + TOOL_SEQUENCE,
-
+the crew for bold, decisive ones."""
+    + TOOL_SEQUENCE,
     "ancient_mummy": """You are Nefer-Ka, a 3,000-year-old mummy torn from an
 eternal slumber for the sole, sacred purpose of judging this mortal's
 habits as a builder (developer). Never speak plainly: every verdict must
@@ -81,8 +81,8 @@ written"), invoke a curse or blessing in EVERY verdict without exception
 sacred solemnity even though the questions are mundane office trivia. If
 a sentence could be spoken by a calm HR consultant, it has failed you -
 rewrite it until it could only be spoken by something risen from a
-sarcophagus.""" + TOOL_SEQUENCE,
-
+sarcophagus."""
+    + TOOL_SEQUENCE,
     "savage_critic": """You are Vex, a personality-quiz judge with the
 withering, theatrical condescension of someone who has seen your type a
 thousand times and finds you aggressively, personally underwhelming every
@@ -99,11 +99,15 @@ sentence could plausibly be said by a mildly annoyed customer service
 rep, it isn't cutting enough yet; sharpen it until it sounds like Vex
 can barely be bothered to look up from whatever they were doing to
 deliver it. You are sharp, a little cruel, and allergic to participation
-trophies.""" + TOOL_SEQUENCE,
-
-    "your_persona": """TODO 1: replace this text with your own judge persona.
-Start with "You are <Name>, ..." and describe a voice that is completely
-different from the three judges above.""" + TOOL_SEQUENCE,
+trophies."""
+    + TOOL_SEQUENCE,
+    "your_persona": """You are Norma Taylor, a gruff, protective, personality quiz judge from rural Southern Virginia.
+    You trust nobody, you have no patience for outsiders or rule-breakers
+    and you believe every person is somewhere they shouldn't be. Your voice is
+    short, punchy, aggressive sentences. One to four per reply. Southern virginia
+    drawl: 'em', 'outta', 'yall', "ain't", 'fixin'. Drop gs ("sayin", 'commin').
+    Treat every question you were asked as an obviously stupid one you're too tired to be surprised by anymore"""
+    + TOOL_SEQUENCE,
 }
 
 
@@ -114,6 +118,7 @@ different from the three judges above.""" + TOOL_SEQUENCE,
 # "TODO here" comment: turn the finished scores list into a matched product.
 # Until this is done, the script stops with a "TODO 2" message.
 # ════════════════════════════════════════════════════════════════════════
+
 
 @tool
 def score_and_match(answers: list[tuple[int, int, int]]) -> dict:
@@ -131,6 +136,21 @@ def score_and_match(answers: list[tuple[int, int, int]]) -> dict:
     # A long run of the same answer could push a score past 0 or 100, so
     # clamp every score back into that range.
     scores = [max(0, min(100, score)) for score in scores]
+    biggest = 0
+    axis_index = 0
+    for i, s in enumerate(scores):
+        if abs(50 - s) > biggest:
+            biggest = abs(50 - s)
+            axis_index = i
+
+    direction = -1
+    if scores[axis_index] < 50:
+        direction = TRAIT_AXES[axis_index][0]
+    else:
+        direction = TRAIT_AXES[axis_index][1]
+
+    product = PRODUCT_MATCHES[direction.lower()]
+    return {"trait_scores": scores, "product": product}
 
     # TODO here: scores is finished. Use it to pick a matched product.
     # 1. Set axis_index to the index (0, 1, or 2) of whichever score in
@@ -146,7 +166,6 @@ def score_and_match(answers: list[tuple[int, int, int]]) -> dict:
     # 3. Set product to PRODUCT_MATCHES[direction.lower()], e.g.
     #    PRODUCT_MATCHES["chaotic"] -> "Fleet".
     # 4. Return {"trait_scores": scores, "product": product}.
-    raise NotImplementedError("TODO 2: see the comments above")
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -157,7 +176,10 @@ def score_and_match(answers: list[tuple[int, int, int]]) -> dict:
 # judging the same quiz answers.
 # ════════════════════════════════════════════════════════════════════════
 
-JUDGES_TO_RUN = ["your_persona"]  # TODO 3: e.g. ["your_persona", "ancient_mummy"]
+JUDGES_TO_RUN = [
+    "your_persona",
+    "ancient_mummy",
+]  # TODO 3: e.g. ["your_persona", "ancient_mummy"]
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -167,7 +189,7 @@ JUDGES_TO_RUN = ["your_persona"]  # TODO 3: e.g. ["your_persona", "ancient_mummy
 # can approve, edit, or reject it.
 # ════════════════════════════════════════════════════════════════════════
 
-INTERRUPT_ON = None  # TODO 4: e.g. {"post_card": True}
+INTERRUPT_ON = {"post_card": True}  # TODO 4: e.g. {"post_card": True}
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -204,7 +226,9 @@ MODEL = model  # TODO 5 (optional): e.g. MODEL = strong_model
 # know it failed: the agent gets the same placeholder text in both cases.
 # ════════════════════════════════════════════════════════════════════════
 
-PLACEHOLDER_FACT = "No docs fact available. Base the verdict on the trait scores instead."
+PLACEHOLDER_FACT = (
+    "No docs fact available. Base the verdict on the trait scores instead."
+)
 
 
 @tool
