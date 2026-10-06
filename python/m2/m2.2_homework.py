@@ -32,6 +32,19 @@ from deepagents.backends import CompositeBackend, FilesystemBackend, StateBacken
 
 from models import model
 
+recipes_dir = Path(__file__).parent / "recipes"
+recipes_dir.mkdir(exist_ok=True)
+(recipes_dir / "fried-rice.md").write_text("""\
+# Fried Rice
+
+A simple homemade fried rice recipe.
+
+## Recipe notes
+
+Use cooked rice and stir-fry it in a pan with the other ingredients.
+This recipe is a draft and still needs an ingredients section.
+
+  """)
 
 # ════════════════════════════════════════════════════════════════════════
 # TODO 1: Configure a backend for a topic of your choosing.
@@ -52,7 +65,12 @@ from models import model
 #   backend = FilesystemBackend(root_dir=str(my_dir), virtual_mode=True)
 # ════════════════════════════════════════════════════════════════════════
 
-backend = None  # TODO 1: replace with a StateBackend, FilesystemBackend, or CompositeBackend
+backend = CompositeBackend(
+    default=StateBackend(),
+    routes={
+        "/recipes/": FilesystemBackend(root_dir=str(recipes_dir), virtual_mode=True)
+    },
+)
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -64,8 +82,10 @@ backend = None  # TODO 1: replace with a StateBackend, FilesystemBackend, or Com
 # empty and skipping permissions entirely is also a valid choice.
 # ════════════════════════════════════════════════════════════════════════
 
-TASK = None  # TODO 2: replace with your own task message
-permissions: list[FilesystemPermission] = []  # TODO 2 (optional): add rules here
+TASK = "Read /recipes/fried-rice.md and give a list of ingredients needed. Also add paneer into the file as one of the ingredients."
+permissions: list[FilesystemPermission] = [
+    FilesystemPermission(operations=["write"], paths=["/recipes/**"], mode="deny")
+]  # TODO 2 (optional): add rules here
 
 if backend is None:
     raise NotImplementedError("TODO 1: see the comment block above")
@@ -79,7 +99,14 @@ agent = create_deep_agent(
 )
 
 result = agent.invoke(
-    {"messages": [{"role": "user", "content": TASK}]},
+    {
+        "messages": [
+            {
+                "role": "user",
+                "content": TASK,
+            }
+        ]
+    },
     config={"configurable": {"thread_id": "homework-m2.2"}},
 )
 
