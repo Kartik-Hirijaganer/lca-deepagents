@@ -61,7 +61,15 @@ from models import model
 #   )
 # ════════════════════════════════════════════════════════════════════════
 
-SYSTEM_PROMPT = None  # TODO 1: replace with your own system prompt
+SYSTEM_PROMPT = (
+    "You are a sales data analyst with access to the Chinook music store database "
+    "at /chinook.db. Use sqlite3 and matplotlib to answer questions with charts. "
+    "This sandbox Python is externally managed, so install packages with "
+    "`pip install --break-system-packages <package>` (e.g. `pip install "
+    "--break-system-packages matplotlib`). sqlite3 is stdlib, so do not install it. "
+    "When asked to produce a chart, write a Python script, execute it, and confirm "
+    "the output file was created."
+)
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -88,8 +96,26 @@ SYSTEM_PROMPT = None  # TODO 1: replace with your own system prompt
 #   )
 # ════════════════════════════════════════════════════════════════════════
 
-TASK_ONE = None  # TODO 2: replace with your first task message
-TASK_TWO = None  # TODO 2: replace with a second task that charts TASK_ONE's file
+TASK_ONE = (
+    "Query the Chinook database at /chinook.db to get total revenue "
+    "by genre (sum of InvoiceLine UnitPrice * Quantity, joined through "
+    "Track to Genre). Sort from highest to lowest revenue. "
+    "Save the result to /genre_revenue.json as a list of objects, "
+    "each with the keys 'genre' (string) and 'revenue' (number, rounded "
+    "to 2 decimals). Then print the contents of the file."
+)
+
+TASK_TWO = (
+    "Read /genre_revenue.json. Do NOT query the database or regenerate "
+    "the numbers. Using matplotlib, create a clean donut chart showing "
+    "each genre's share of total sales revenue. Group any genres that "
+    "individually account for less than 3% of total revenue into a single "
+    "'Other' slice. Label each slice with the genre name and percentage. "
+    "Use a visually distinct color palette, leave a white center hole, "
+    "and make sure no labels overlap with each other or with the title. "
+    "Add enough top padding so the title is fully visible. "
+    "Save the chart to /genre_revenue.png."
+)
 
 
 # ════════════════════════════════════════════════════════════════════════
@@ -100,7 +126,7 @@ TASK_TWO = None  # TODO 2: replace with a second task that charts TASK_ONE's fil
 # save it locally, the same way Lab 2 reads /genre_revenue.png back.
 # ════════════════════════════════════════════════════════════════════════
 
-CHART_PATH = None  # TODO 3: replace with the sandbox path used in TASK_TWO
+CHART_PATH = "/genre_revenue.png"
 
 if SYSTEM_PROMPT is None:
     raise NotImplementedError("TODO 1: see the comment block above")
@@ -109,10 +135,21 @@ if TASK_ONE is None or TASK_TWO is None:
 if CHART_PATH is None:
     raise NotImplementedError("TODO 3: see the comment block above")
 
+DB_PATH = Path(__file__).resolve().parent / "chinook.db"
+
 client = SandboxClient()
 ls_sandbox = client.create_sandbox(name=f"lca-deepagents-homework-{uuid4().hex[:8]}")
 print(f"Sandbox: {ls_sandbox.name}  (id: {ls_sandbox.id})")
 backend = LangSmithSandbox(sandbox=ls_sandbox)
+
+with open(DB_PATH, "rb") as f:
+    upload_results = backend.upload_files([("/chinook.db", f.read())])
+
+for upload_result in upload_results:
+    if upload_result.error:
+        raise RuntimeError(
+            f"Failed to upload {upload_result.path}: {upload_result.error}"
+        )
 
 agent = create_deep_agent(
     model=model,
